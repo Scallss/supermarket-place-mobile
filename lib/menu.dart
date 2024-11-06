@@ -7,8 +7,8 @@ class MyHomePage extends StatelessWidget {
   final String className = 'PBP D'; // Kelas
 
   final List<ItemHomepage> items = [
-      ItemHomepage("Lihat Mood", Icons.mood),
-      ItemHomepage("Tambah Mood", Icons.add),
+      ItemHomepage("Lihat Daftar Produk", Icons.mood),
+      ItemHomepage("Tambah Produk", Icons.add),
       ItemHomepage("Logout", Icons.logout),
   ];
 
@@ -27,7 +27,7 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         // Judul aplikasi "Mental Health Tracker" dengan teks putih dan tebal.
         title: const Text(
-          'Mental Health Tracker',
+          'Supermarket Place',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -66,7 +66,7 @@ class MyHomePage extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(top: 16.0),
                     child: Text(
-                      'Welcome to Mental Health Tracker',
+                      'Welcome to Supermarket Place',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.0,
