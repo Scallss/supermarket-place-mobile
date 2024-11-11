@@ -204,7 +204,147 @@ untuk menyatukan semuanya, kita buat widget untuk memberikan struktur dasar hala
 
 Perlu diperhatikan kalau pembuatan itemCard dilakukan dengan List.Generate
 
-## Jelaskan apa yang dimaksud dengan stateless widget dan stateful widget, dan jelaskan perbedaan dari keduanya.
+## Stateless widget VS Stateful widget
+
+StatelessWidget adalah jenis widget dalam Flutter yang tidak memiliki keadaan yang dapat berubah selama aplikasi berjalan. Setelah widget ini diinisialisasi, baik data maupun tampilannya tetap konstan. Contoh dari StatelessWidget meliputi tombol, label teks, atau ikon yang hanya menampilkan informasi statis. Widget ini ideal digunakan ketika tampilan yang diperlukan bersifat tetap dan tidak memerlukan pembaruan, kecuali jika seluruh widget perlu dibangun ulang.
+
+Beda dengan StatelessWidget, StatefulWidget adalah widget yang memiliki keadaan yang dapat berubah selama aplikasi berjalan. Ketika keadaan ini berubah, widget dapat merender ulang tampilan sesuai dengan data baru. StatefulWidget digunakan untuk menangani data yang dinamis atau interaksi pengguna yang mempengaruhi tampilan. Dengan kata lain, jika kita ingin menciptakan elemen antarmuka yang responsif terhadap perubahan data atau aksi pengguna, maka StatefulWidget adalah pilihan yang tepat.
+
 ## Sebutkan widget apa saja yang kamu gunakan pada proyek ini dan jelaskan fungsinya.
+- MaterialApp, MaterialApp adalah widget utama dalam aplikasi Flutter yang menggunakan desain Material. Ini berfungsi sebagai kerangka dasar aplikasi dan menentukan tema serta tampilan awal aplikasi (halaman beranda dalam kasus ini).
+- Scaffold, menyediakan struktur dasar untuk halaman aplikasi, seperti AppBar, body, dan floating action button. Ini memungkinkan kita untuk mengatur layout secara lebih mudah dengan menyediakan elemen standar aplikasi.
+- AppBar, bagian atas halaman yang biasanya berisi judul atau aksi penting lainnya. Pada proyek ini, AppBar berfungsi untuk menampilkan nama aplikasi, yaitu "Supermarket Place".
+- Card, Card digunakan untuk menampilkan konten dengan bingkai yang memiliki efek bayangan. Di sini, Card digunakan untuk membungkus InfoCard sehingga terlihat sebagai kartu informasi.
+- InfoCard (Custom Widget), InfoCard adalah widget kustom yang menampilkan informasi dasar pengguna seperti NPM, nama, dan kelas. InfoCard dibuat dengan Card untuk tampilan berbingkai dan menggunakan Column untuk menyusun teksnya.
+- ItemCard (Custom Widget), ItemCard adalah widget kustom yang menampilkan tombol dengan ikon dan teks untuk setiap item di halaman beranda. Setiap ItemCard diberi warna dan aksi khusus.
+- InkWell,  widget yang memungkinkan deteksi sentuhan atau klik dengan efek ripple. Digunakan untuk menambahkan interaktivitas pada ItemCard, sehingga pengguna tahu saat item ditekan.
+- SnackBar, menampilkan pesan sementara di bagian bawah layar saat aksi tertentu terjadi. Pada proyek ini, SnackBar digunakan untuk menampilkan pesan saat ItemCard ditekan.
+
 ## Apa fungsi dari setState()? Jelaskan variabel apa saja yang dapat terdampak dengan fungsi tersebut.
-## Jelaskan perbedaan antara const dengan fina!
+Fungsi setState() dalam Flutter digunakan untuk memberi tahu framework bahwa suatu objek State telah berubah, sehingga tampilan harus diperbarui. setState() biasanya digunakan di dalam StatefulWidget ketika ada perubahan pada state (status) yang perlu ditampilkan kembali pada antarmuka pengguna. Cara kerjanya adalah setState() memicu Flutter untuk memanggil ulang metode build() widget tersebut, sehingga elemen UI diperbarui.
+
+Variabel yang dapat terdampak:
+- Variabel yang digunakan untuk UI
+- Variabel untuk Logika dan Penghitungan
+- State yang Bergantung pada Input Pengguna
+
+## Jelaskan perbedaan antara const dengan final!
+Dalam Dart, const dan final adalah keyword yang digunakan untuk membuat variabel yang tidak dapat diubah (immutable). Perbedaannya adalah final digunakan untuk mendeklarasikan variabel yang hanya bisa diinisialisasi sekali, dan nilai final bisa dideklarasikan saat runtime, jadi cocok untuk nilai yang belum diketahui hingga program jalan. Beda dengan const, yang digunakan untuk membuat variabel yang nilai atau objeknya bersifat konstan sejak compile-time. Ini berarti nilai harus diketahui sebelum program dijalankan. Variabel const biasanya digunakan untuk nilai konstan yang sudah pasti dan tidak bergantung pada waktu atau kondisi program. Pada variabel objek, const menjadikan semua elemen dalam objek tersebut juga konstan.
+
+# Tugas 8
+## Kegunaan Const di Flutter
+const digunakan untuk membuat widget atau objek yang bersifat immutable (tidak dapat diubah). Jika suatu widget didefinisikan sebagai const, Flutter menganggap bahwa widget tersebut tidak akan berubah selama program berjalan, sehingga widget tersebut tidak perlu build ulang setiap kali ada perubahan di dalam aplikasi. Keuntungan menggunakan const dengan tepat meliputi optimalisasi peforma dan juga efisiensi alokasi memori yang mana karena const bersifat tetap, wdiget yang dideklarasikan dalam const tidak akan dialokasikan ulang dalam memori setelah dibuat. const sebaiknya digunakan pada widget yang tidak akan berubah setelah didefinisikan, seperti Text, Icon, atau layout sederhana yang hanya tampil sekali tanpa dipengaruhi oleh interaksi pengguna. Jangan gunakan const jika widget dapat berubah berdasarkan input atau state, seperti di StatefulWidget yang tampilan bergantung pada variabel yang akan diperbarui.
+
+## Kegunaan row dan column pada Flutter
+Di flutter, Column dan Row adalah widget layout dasar yang digunakan untuk menyusun widget. Column adalah widget yang menyusun child elementnya secara vertikal (dari atas ke bawah) sedangkan row adalah widget yang menyusun anak-anaknya secara horizontal (dari kiri ke kanan). 
+contoh implementasi `column`:
+```
+Column(
+  mainAxisAlignment: MainAxisAlignment.spaceAround,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: <Widget>[
+    Text('Halo'),
+    Text('ini adalah'),
+    Text('Column'),
+  ],
+)
+```
+
+contoh implementasi `row`:
+```
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceAround,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: <Widget>[
+    Icon(Icons.home),
+    Icon(Icons.star),
+    Icon(Icons.settings),
+  ],
+)
+```
+
+## Elemen input pada halaman form 
+Elemen input yang digunakan:
+- TextFormField, Digunakan untuk menginput teks pada kolom Product Name, Description, dan Product Amount.
+- ElevatedButton, Digunakan sebagai tombol untuk menyimpan data produk ketika form sudah diisi dengan benar.
+
+Elemen input yang tidak digunakan:
+- DropdownButtonFormField, cocok untuk memberikan pilihan terbatas dari opsi yang ada, seperti kategori produk atau jenis produk.
+- Checkbox, digunakan untuk input pilihan biner, seperti konfirmasi atau persetujuan dari pengguna.
+- Slider, cocok untuk input dengan rentang nilai, seperti harga atau tingkat kepuasan.
+
+## Membuat Theme pada Flutter agar aplikasi konsisten
+Saya mengatur konsistensi tampilan aplikasi dengan menggunakan Theme data pada `main.dart`. Di dalamnya terdapat color scheme untuk memastikan tema aplikasi terjaga dan sama.
+
+## Menangani navigasi 
+Dengan menggunakan drawer yang tersedia pada flutter dan juga Infocard pada menu utama untuk menavigasi banyak halaman pada flutter. Contohnya seperti kode `left_drawer.dart` berikut yang membuat navigasi ke halaman utama dan tambah item:
+```
+import 'package:flutter/material.dart';
+import 'package:supermarket_place/screens/menu.dart';
+import 'package:supermarket_place/screens/productentry_form.dart';
+
+class LeftDrawer extends StatelessWidget {
+  const LeftDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: const Column(
+              children: [
+                Text(
+                  'Supermarket Place',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Padding(padding: EdgeInsets.all(8)),
+                Text(
+                  "Place to fulfill your daily grocery needs!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white,
+                  )
+                ),
+              ],
+            ),
+          ),
+            ListTile(
+              leading: const Icon(Icons.home_outlined),
+              title: const Text('Halaman Utama'),
+              // Bagian redirection ke MyHomePage
+              onTap: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyHomePage(),
+                    ));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.mood),
+              title: const Text('Tambah Item'),
+              // Bagian redirection ke Tambah Produk
+              onTap: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProductEntryFormPage(),
+                    ));
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+```
