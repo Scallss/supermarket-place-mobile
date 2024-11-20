@@ -16,8 +16,8 @@ class MyHomePage extends StatelessWidget {
 
     // Daftar warna untuk tombol-tombol
   final List<Color> buttonColors = [
-      Colors.blue, // Warna untuk tombol Lihat Mood
-      Colors.green, // Warna untuk tombol Tambah Mood
+      Colors.blue, // Warna untuk tombol Lihat produk
+      Colors.green, // Warna untuk tombol Tambah produk
       Colors.red, // Warna untuk tombol Logout
   ];
 
@@ -37,6 +37,8 @@ class MyHomePage extends StatelessWidget {
         ),
         // Warna latar belakang AppBar diambil dari skema warna tema aplikasi.
         backgroundColor: Theme.of(context).colorScheme.primary,
+        // Mengganti warna icon drawer menjadi putih
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
       drawer: const LeftDrawer(),

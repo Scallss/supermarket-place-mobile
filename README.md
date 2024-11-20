@@ -4,7 +4,7 @@ Place to fulfill your daily grocery needs!
 # Tugas 7
 ## Implementation Checklist 
 Untuk membuat 3 tombol dengan 3 warna berbeda dimulai dengan pertama-tama membuat project flutter, rapihkan struktur proyek dengan membuat file `menu.dart`. Untuk 3 tombol ini dibuat dengan kode berikut:
-```
+```dart
 final List<ItemHomepage> items = [
       ItemHomepage("Lihat Mood", Icons.mood),
       ItemHomepage("Tambah Mood", Icons.add),
@@ -20,7 +20,7 @@ final List<ItemHomepage> items = [
 ```
 
 setelah melakukan inisiasi informasi, kita bisa membuat class info card untuk menampilkan card masing-masing dengan kode berikut di `menu.dart`:
-```
+```dart
 class InfoCard extends StatelessWidget {
   // Kartu informasi yang menampilkan title dan content.
 
@@ -117,7 +117,7 @@ class ItemCard extends StatelessWidget {
 ```
 
 untuk menyatukan semuanya, kita buat widget untuk memberikan struktur dasar halaman dengan appBar dan Body:
-```
+```dart
 @override
   Widget build(BuildContext context) {
     // Scaffold menyediakan struktur dasar halaman dengan AppBar dan body.
@@ -199,7 +199,6 @@ untuk menyatukan semuanya, kita buat widget untuk memberikan struktur dasar hala
       ),
     );
   }
-}
 ```
 
 Perlu diperhatikan kalau pembuatan itemCard dilakukan dengan List.Generate
@@ -238,7 +237,7 @@ const digunakan untuk membuat widget atau objek yang bersifat immutable (tidak d
 ## Kegunaan row dan column pada Flutter
 Di flutter, Column dan Row adalah widget layout dasar yang digunakan untuk menyusun widget. Column adalah widget yang menyusun child elementnya secara vertikal (dari atas ke bawah) sedangkan row adalah widget yang menyusun anak-anaknya secara horizontal (dari kiri ke kanan). 
 contoh implementasi `column`:
-```
+```dart
 Column(
   mainAxisAlignment: MainAxisAlignment.spaceAround,
   crossAxisAlignment: CrossAxisAlignment.center,
@@ -251,7 +250,7 @@ Column(
 ```
 
 contoh implementasi `row`:
-```
+```dart
 Row(
   mainAxisAlignment: MainAxisAlignment.spaceAround,
   crossAxisAlignment: CrossAxisAlignment.center,
@@ -278,7 +277,7 @@ Saya mengatur konsistensi tampilan aplikasi dengan menggunakan Theme data pada `
 
 ## Menangani navigasi 
 Dengan menggunakan drawer yang tersedia pada flutter dan juga Infocard pada menu utama untuk menavigasi banyak halaman pada flutter. Contohnya seperti kode `left_drawer.dart` berikut yang membuat navigasi ke halaman utama dan tambah item:
-```
+```dart
 import 'package:flutter/material.dart';
 import 'package:supermarket_place/screens/menu.dart';
 import 'package:supermarket_place/screens/productentry_form.dart';
@@ -348,3 +347,171 @@ class LeftDrawer extends StatelessWidget {
   }
 }
 ```
+
+# Tugas 9
+## Model untuk pengambilan/pengiriman data JSON
+Pembuatan model akan memudahkan kita untuk mendefinisikan struktur data yang kita inginkan. Selain itu, pembuatan model pada flutter memudahkan untuk validasi data baik pada saat pengiriman/pengambilan, dan juga memudahkan parsing dan serialisasi. Jika tidak membuat model pada flutter terlebih dahulu, tidak error, namun kita akan harus handling data dalam bentuk raw JSON yang tidak mudah dilakukan dan rawan terjadi error. Sehingga dengan adanya model, akan memudahkan kita juga untuk menggunakan data tersebut. 
+
+## Fungsi library http
+library http pada flutter sangat berguna dalam konteks integrasi aplikasi django dan flutter yang mana http memungkinkan aplikasi kita terhubung dengan django sehingga kita bisa melakukan fetch dan juga pengiriman data antar django dan flutter. Hal ini memungkinkan kita untuk 'menyambungkan' data antar kedua aplikasi
+
+## CookieRequest pada Flutter
+CookieRequest yang merupakan bagian dari library pbp_django_auth, digunakan untuk mengelola autentikasi berbasis cookie antara aplikasi Flutter dan backend Django. Library memudahkan komunikasi HTTP dengan sekaligus menangani cookie secara otomatis untuk memastikan sesi pengguna tetap aktif. Instance CookieRequest perlu dibagikan ke semua komponen di aplikasi flutter agar setiap komponen memiliki akses terhadap cookies yang sama, sehingga penyimpanan session konsisten, mengurangi duplikasi kode, dan menjaga state autentikasi secara global. 
+
+## Mekanisme Pengiriman data pada Flutter 
+Dimulai dari input, pengguna akan mengisi form pada flutter terlebih dahulu sesuai dengan field-fieldnya. Ketika disubmit, data dari form akan dikirimkan ke backend django melalui http dengan method POST. Data yang dioper ini berupa JSON, yang kemudian akan disesuaikan dengan setiap attribut model yang diinput dan kemudian disimpan ke database. Kemudian, aplikasi flutter dapat meminta request untuk pengambilan data dari database django menggunakan metode get, dan setelah data diterima, flutter akan memproses JSON tersebut menjadi objek model dan dapat menampilkannya di UI aplikasi. 
+
+## Mekanisme autentikasi (login, register, logout)
+1. Register, Flutter mengirim data akun ke Django, kemudian Django memvalidasi dan menyimpan data ke database.
+2. Login: Flutter mengirim username dan password ke Django, dan Django akan memvalidasi kredensial, membuat session/token, dan mengembalikan respons sukses ke Flutter.
+3. Logout: Flutter mengirim request logout. Django menghapus session/token.
+4. Menu Setelah Login: Flutter menyimpan status autentikasi. Django memverifikasi status login sebelum memberikan akses ke data/menu.
+
+## Checklist Implementation
+Django:
+1. Membuat app baru bernama `authentication` dan tambahkan function untuk login, register dan logout pada `authentication/views.py` yang akan diintegrasikan ke aplikasi Flutter 
+```python
+from django.contrib.auth import authenticate, login as auth_login
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+import json
+from django.contrib.auth import logout as auth_logout
+
+@csrf_exempt
+def login(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            auth_login(request, user)
+            # Status login sukses.
+            return JsonResponse({
+                "username": user.username,
+                "status": True,
+                "message": "Login sukses!"
+                # Tambahkan data lainnya jika ingin mengirim data ke Flutter.
+            }, status=200)
+        else:
+            return JsonResponse({
+                "status": False,
+                "message": "Login gagal, akun dinonaktifkan."
+            }, status=401)
+
+    else:
+        return JsonResponse({
+            "status": False,
+            "message": "Login gagal, periksa kembali email atau kata sandi."
+        }, status=401)
+    
+@csrf_exempt
+def register(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data['username']
+        password1 = data['password1']
+        password2 = data['password2']
+
+        # Check if the passwords match
+        if password1 != password2:
+            return JsonResponse({
+                "status": False,
+                "message": "Passwords do not match."
+            }, status=400)
+        
+        # Check if the username is already taken
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({
+                "status": False,
+                "message": "Username already exists."
+            }, status=400)
+        
+        # Create the new user
+        user = User.objects.create_user(username=username, password=password1)
+        user.save()
+        
+        return JsonResponse({
+            "username": user.username,
+            "status": 'success',
+            "message": "User created successfully!"
+        }, status=200)
+    
+    else:
+        return JsonResponse({
+            "status": False,
+            "message": "Invalid request method."
+        }, status=400)
+
+@csrf_exempt
+def logout(request):
+    username = request.user.username
+
+    try:
+        auth_logout(request)
+        return JsonResponse({
+            "username": username,
+            "status": True,
+            "message": "Logout berhasil!"
+        }, status=200)
+    except:
+        return JsonResponse({
+        "status": False,
+        "message": "Logout gagal."
+        }, status=401)
+```
+2. Lakukan setup autentikasi Django-Flutter dengan menginstall `django-cors-headers` dan modifikasi `settings.py` untuk dapat mengintegrasikan kedua aplikasi. 
+
+2. Membuat function baru pada `main/views.py` untuk menerima input data dari flutter dan menyimpannya ke dalam database
+```python
+@csrf_exempt
+def add_product_flutter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # Pastikan semua field disertakan
+            new_product = Product.objects.create(
+                user=request.user,  # Ambil user dari request yang sudah login
+                name=data["name"],
+                price=int(data["price"]),
+                description=data["description"],
+                stock=int(data["stock"]),
+                image=data['image'],
+                category=data["category"],  # Default category ke string kosong jika tidak ada
+            )
+
+            new_product.save()
+            return JsonResponse({"status": "success"}, status=200)
+
+        except KeyError as e:
+            # Tangani error jika ada field yang hilang
+            return JsonResponse({"status": "error", "message": f"Missing field: {str(e)}"}, status=400)
+        except Exception as e:
+            # Tangani error lain
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid HTTP method"}, status=405)
+```
+3. Routing setiap fungsi baru pada `urls.py`
+
+Flutter: 
+1. Setup Autentikasi dengan menyediakan CookieRequest ke semua child widgets dengan menggunakan `provider`. Install juga package berikut untuk melakukan integrasi sistem autentikasi pada Flutter.
+```
+flutter pub add provider
+flutter pub add pbp_django_auth
+```
+2. Membuat page untuk autentikasi (login, register), sekaligus menyambungkan autentikasi dengan django serta implementasi logout
+3. Membuat model kustom untuk aplikasi flutter yang sesuai dengan model pada Django pada `model/product.dart`.
+4. Membuat page untuk list product dan detail product tertentu. Untuk memungkinkan ini, ditambahkan kode di bawah pada `android/app/src/main/AndroidManifest.xml`
+```xml
+...
+    <application>
+    ...
+    </application>
+    <!-- Required to fetch data from the Internet. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+...
+```
+
+4. Integrasikan form pada flutter untuk dapat disimpan ke database Django

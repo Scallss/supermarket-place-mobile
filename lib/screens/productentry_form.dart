@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:supermarket_place/screens/menu.dart';
 import 'package:supermarket_place/widgets/left_drawer.dart';
 
 class ProductEntryFormPage extends StatefulWidget {
@@ -10,17 +15,21 @@ class ProductEntryFormPage extends StatefulWidget {
 
 class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
   final _formKey = GlobalKey<FormState>();
+
   String _name = "";
-	String _description = "";
-	int _amount = 0;
+  String _description = "";
+  int _price = 0;
+  int _stock = 0;
+  String _image = "";
+  String _category = "";
+
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Center(
-          child: Text(
-            'Form Tambah Produk',
-          ),
+          child: Text('Form Tambah Produk'),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
@@ -32,6 +41,7 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Input Name
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
@@ -55,6 +65,8 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                   },
                 ),
               ),
+
+              // Input Description
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
@@ -78,74 +90,162 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                   },
                 ),
               ),
+
+              // Input Price
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    hintText: "Product Amount",
-                    labelText: "Product Amount",
+                    hintText: "Product Price",
+                    labelText: "Product Price",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
                   onChanged: (String? value) {
                     setState(() {
-                      _amount = int.tryParse(value!) ?? 0;
+                      _price = int.tryParse(value!) ?? 0;
                     });
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Amount tidak boleh kosong!";
+                      return "Price tidak boleh kosong!";
                     }
                     final parsedValue = int.tryParse(value);
                     if (parsedValue == null) {
-                      return "Amount harus berupa angka!";
+                      return "Price harus berupa angka!";
                     }
                     if (parsedValue < 0) {
-                      return "Amount tidak boleh negatif!";
+                      return "Price tidak boleh negatif!";
                     }
                     return null;
                   },
                 ),
               ),
+
+              // Input Stock
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Stock",
+                    labelText: "Stock",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _stock = int.tryParse(value!) ?? 0;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Stock tidak boleh kosong!";
+                    }
+                    final parsedValue = int.tryParse(value);
+                    if (parsedValue == null) {
+                      return "Stock harus berupa angka!";
+                    }
+                    if (parsedValue < 0) {
+                      return "Stock tidak boleh negatif!";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+
+              // Input Image URL
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Image URL",
+                    labelText: "Image URL",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _image = value!;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Image URL tidak boleh kosong!";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+
+              // Input Category
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Category",
+                    labelText: "Category",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _category = value!;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Category tidak boleh kosong!";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+
+              // Submit Button
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(
-                          Theme.of(context).colorScheme.primary),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Produk berhasil tersimpan'),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Product Name: $_name'),
-                                    Text('Description: $_description'),
-                                    Text('Amount: $_amount'),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
+                        final response = await request.postJson(
+                          "http://localhost:8000/create-flutter/",
+                          jsonEncode({
+                            'name': _name,
+                            'price': _price.toString(),
+                            'description': _description,
+                            'stock': _stock.toString(),
+                            'image': _image,
+                            'category': _category,
+                          }),
                         );
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Produk baru berhasil disimpan!"),
+                              ),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => MyHomePage()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Terdapat kesalahan, silakan coba lagi."),
+                              ),
+                            );
+                          }
+                        }
                       }
                     },
                     child: const Text(
@@ -156,7 +256,7 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                 ),
               ),
             ],
-          )
+          ),
         ),
       ),
     );
